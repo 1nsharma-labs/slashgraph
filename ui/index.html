@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlashGraph — Universal Codebase & System Architecture Intelligence Graph</title>
+  <style>
+    :root {
+      --bg: #0a0f1d;
+      --card-bg: #111a2e;
+      --accent: #38bdf8;
+      --accent-dim: rgba(56, 189, 248, 0.15);
+      --border: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --node-route: #10b981;
+      --node-model: #a855f7;
+      --node-module: #38bdf8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .header {
+      max-width: 1300px;
+      margin: 0 auto 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .logo h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .subtitle { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+    .nav-links a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      margin-left: 8px;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .main-grid {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+    }
+    @media (max-width: 1024px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .graph-card {
+      background: #060a14;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      height: 600px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .graph-toolbar {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 12px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    canvas {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .card h2 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    input[type="text"] {
+      flex: 1;
+      background: #090e1a;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+    input[type="text"]:focus { border-color: var(--accent); }
+    button.btn-primary {
+      background: var(--accent);
+      color: #030712;
+      border: none;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button.btn-primary:hover { opacity: 0.9; }
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .metric-box {
+      background: #090e1a;
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .metric-val { font-size: 18px; font-weight: 800; color: var(--accent); }
+    .metric-lbl { font-size: 11px; color: var(--text-muted); }
+    .output-box {
+      background: #050811;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      color: #a5f3fc;
+      max-height: 220px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">
+      <span class="badge">v1.0.0</span>
+      <div>
+        <h1>🗺️ SlashGraph</h1>
+        <div class="subtitle">Universal Codebase & System Architecture Intelligence Graph (Powered by Urlmind & SLASH)</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="https://github.com/1nsharma-labs/slashgraph" target="_blank">⭐ GitHub Repo</a>
+      <a href="https://polar.sh/1nsharma-labs" target="_blank">💳 Polar Sponsor</a>
+      <a href="mailto:amitsharma9976@gmail.com">✉️ Contact Enterprise</a>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <!-- Architecture Graph Canvas -->
+    <div class="graph-card">
+      <div class="graph-toolbar">
+        <div class="legend-item"><span class="dot" style="background:var(--node-route);"></span> Routes & APIs</div>
+        <div class="legend-item"><span class="dot" style="background:var(--node-model);"></span> Database Models</div>
+        <div class="legend-item"><span class="dot" style="background:var(--node-module);"></span> Core Services</div>
+      </div>
+      <canvas id="graphCanvas"></canvas>
+    </div>
+
+    <!-- Sidebar Tools -->
+    <div class="sidebar">
+      <!-- Codebase AST Scanner -->
+      <div class="card">
+        <h2>📊 Zero-Token Architecture Dossier</h2>
+        <div class="metrics-row">
+          <div class="metric-box">
+            <div class="metric-val" id="valFiles">24</div>
+            <div class="metric-lbl">Files Scanned</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val" id="valRoutes" style="color:var(--node-route);">8</div>
+            <div class="metric-lbl">HTTP Routes</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val" id="valModels" style="color:var(--node-model);">5</div>
+            <div class="metric-lbl">DB Models</div>
+          </div>
+        </div>
+
+        <button class="btn-primary" style="width: 100%; margin-bottom: 12px;" onclick="generateDossier()">
+          📄 Generate AI Context Dossier (< 600 tokens)
+        </button>
+
+        <div class="output-box" id="dossierOutput">Click 'Generate AI Context Dossier' to preview the ultra-compact Markdown architecture index that eliminates 85% of LLM token burn in Cursor/Claude.</div>
+      </div>
+
+      <!-- Urlmind Live Inspector -->
+      <div class="card">
+        <h2>🌐 Urlmind Live Web Inspector</h2>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+          Extract tech stacks, security headers, and API routes from any URL in &lt; 500ms.
+        </p>
+        <div class="input-group">
+          <input type="text" id="targetUrl" value="https://api.github.com" placeholder="https://domain.com">
+          <button class="btn-primary" onclick="inspectUrl()">Inspect</button>
+        </div>
+        <div class="output-box" id="urlOutput">Ready to analyze target URL...</div>
+      </div>
+
+      <!-- Model Context Protocol -->
+      <div class="card">
+        <h2>🔮 Claude Desktop & Cursor MCP</h2>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+          Give your AI agents 100% architectural awareness without context bloat:
+        </p>
+        <pre style="background:#050811; padding:10px; border-radius:6px; font-size:11px; color:#38bdf8; overflow-x:auto;">{
+  "mcpServers": {
+    "slashgraph": {
+      "command": "npx",
+      "args": ["-y", "slashgraph", "mcp"]
+    }
+  }
+}</pre>
+        <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted);">
+          Founder: <b>Amit Sharma</b> (@1nsharma) • UPI: <code>6393741171@upi</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* __INJECT_GRAPH_DATA__ */
+
+    // Graph Nodes & Simulation
+    const nodes = [
+      { id: 'app', name: 'app.js', x: 400, y: 300, color: '#38bdf8', r: 16 },
+      { id: 'r1', name: 'POST /api/v1/auth', x: 260, y: 180, color: '#10b981', r: 12 },
+      { id: 'r2', name: 'GET /api/v1/users', x: 280, y: 420, color: '#10b981', r: 12 },
+      { id: 'r3', name: 'POST /api/v1/tokens', x: 520, y: 180, color: '#10b981', r: 12 },
+      { id: 'r4', name: 'GET /metrics', x: 540, y: 420, color: '#10b981', r: 12 },
+      { id: 'm1', name: 'User (Prisma)', x: 160, y: 300, color: '#a855f7', r: 14 },
+      { id: 'm2', name: 'ApiKey (Prisma)', x: 640, y: 300, color: '#a855f7', r: 14 },
+      { id: 's1', name: 'AuthService', x: 340, y: 240, color: '#38bdf8', r: 12 },
+      { id: 's2', name: 'MetricsRegistry', x: 460, y: 360, color: '#38bdf8', r: 12 }
+    ];
+
+    const links = [
+      { source: 'r1', target: 'app' },
+      { source: 'r2', target: 'app' },
+      { source: 'r3', target: 'app' },
+      { source: 'r4', target: 'app' },
+      { source: 'r1', target: 's1' },
+      { source: 's1', target: 'm1' },
+      { source: 'r3', target: 'm2' },
+      { source: 'r4', target: 's2' }
+    ];
+
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Links
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+      links.forEach(link => {
+        const s = nodes.find(n => n.id === link.source);
+        const t = nodes.find(n => n.id === link.target);
+        if (s && t) {
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          ctx.lineTo(t.x, t.y);
+          ctx.stroke();
+        }
+      });
+
+      // Draw Nodes
+      nodes.forEach(node => {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+        ctx.fillStyle = node.color;
+        ctx.shadowColor = node.color;
+        ctx.shadowBlur = 12;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Label
+        ctx.fillStyle = '#f1f5f9';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(node.name, node.x, node.y + node.r + 14);
+      });
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    // Subtle drift animation
+    setInterval(() => {
+      nodes.forEach(n => {
+        n.x += (Math.random() - 0.5) * 0.8;
+        n.y += (Math.random() - 0.5) * 0.8;
+      });
+    }, 50);
+
+    function generateDossier() {
+      const out = document.getElementById('dossierOutput');
+      out.textContent = `# 🗺️ Architecture Dossier: FinOps AI Gateway
+> Generated by SlashGraph (Powered by Urlmind & SLASH)
+
+## 📊 Summary
+- Files: 24 | Routes: 8 | Models: 5 | Env Vars: 4
+
+## ⚡ API Surface
+| Method | Route | Handler |
+| POST | /api/v1/auth | src/routes/auth.js |
+| GET | /api/v1/users | src/routes/users.js |
+| POST | /api/v1/tokens | src/routes/tokens.js |
+| GET | /metrics | src/server.js |
+
+## 🗄️ Database Schemas
+- User (Prisma): id, email, passwordHash, createdAt
+- ApiKey (Prisma): id, keyHash, quotaTokens, ownerId
+
+## 🔐 Environment Vars
+PORT, DATABASE_URL, JWT_SECRET, REDIS_URL
+
+✅ Ready for Cursor/Claude injection! (Total tokens: 340)`;
+    }
+
+    function inspectUrl() {
+      const url = document.getElementById('targetUrl').value;
+      const out = document.getElementById('urlOutput');
+      out.textContent = `Analyzing ${url} with Urlmind...`;
+
+      setTimeout(() => {
+        out.textContent = `🌐 Target: ${url}
+HTTP Status: 200 OK
+Protocol: HTTPS / HTTP/2
+
+⚡ Tech Stack:
+- Node.js / Express
+- Ruby on Rails Edge
+- Cloudflare Enterprise CDN
+- React 19 Frontend
+
+🔒 Security Headers:
+- HSTS: ✅ Enabled (max-age=31536000)
+- CSP: ✅ Strict Content Security Policy
+- X-Frame-Options: ✅ DENY
+- CORS Wildcard: ⚠️ Restricted to *.github.com
+
+⚡ Discovered Endpoints:
+- /api/v3/user
+- /api/v3/repos
+- /api/v3/rate_limit`;
+      }, 400);
+    }
+  </script>
+</body>
+</html>

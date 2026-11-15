@@ -1,0 +1,47 @@
+{
+  "name": "slashgraph",
+  "version": "1.0.0",
+  "description": "Universal Codebase & System Architecture Intelligence Graph for AI Agents (Powered by Urlmind & SLASH)",
+  "main": "core/src/index.js",
+  "type": "module",
+  "bin": {
+    "slashgraph": "./core/src/cli/index.js"
+  },
+  "scripts": {
+    "start": "node core/src/cli/index.js",
+    "test": "node test/test_slashgraph.js",
+    "mcp": "node core/src/cli/index.js mcp"
+  },
+  "keywords": [
+    "codebase-graph",
+    "architecture-intelligence",
+    "ai-agent",
+    "mcp",
+    "claude-desktop",
+    "cursor",
+    "ast-parser",
+    "urlmind",
+    "slash",
+    "devops",
+    "open-source"
+  ],
+  "author": "Amit Sharma <amitsharma9976@gmail.com> (https://github.com/1nsharma)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1nsharma-labs/slashgraph.git"
+  },
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://polar.sh/1nsharma-labs"
+    },
+    {
+      "type": "upi",
+      "url": "upi://pay?pa=6393741171@upi&pn=Amit%20Sharma"
+    }
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -110,8 +110,8 @@ SlashGraph follows an **Open-Core** model:
 
 ### Direct Contact & Payment
 * **Lead Architect:** **Amit Sharma** ([@1nsharma](https://github.com/1nsharma))
-* **Direct Email:** [amitsharma9976@gmail.com](mailto:amitsharma9976@gmail.com)
-* **Direct UPI / PhonePe / GPay / Paytm:** `6393741171` (UPI ID: `6393741171@upi`)
+* **Enterprise Inquiries & Bounties:** [polar.sh/1nsharma-labs](https://polar.sh/1nsharma-labs)
+* **Official Contact:** [tech@mowglai.com](mailto:tech@mowglai.com)
 * **Global Sponsorship & Cards:** [polar.sh/1nsharma-labs](https://polar.sh/1nsharma-labs) &bull; [github.com/sponsors/1nsharma](https://github.com/sponsors/1nsharma)
 
 ---
